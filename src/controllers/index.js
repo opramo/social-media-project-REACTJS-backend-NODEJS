@@ -5,9 +5,21 @@ const {
   emailVerification,
   verifyAccount,
 } = require("./authControllers");
-const { updateProfile, updatePhoto } = require("./profileControllers");
+const {
+  deleteRecipe,
+  postRecipe,
+  editRecipe,
+  likeRecipe,
+  commentRecipe,
+} = require("./recipeController");
+const { updateProfile } = require("./profileControllers");
+
 module.exports = {
-  updatePhoto,
+  commentRecipe,
+  likeRecipe,
+  editRecipe,
+  postRecipe,
+  deleteRecipe,
   updateProfile,
   registerController,
   loginController,

@@ -2,12 +2,11 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
-const { dbCon } = require("./src/connection");
-const { authRoutes, profileRoutes } = require("./src/routes");
+const { authRoutes, profileRoutes, recipeRoutes } = require("./src/routes");
 const PORT = process.env.PORT;
 
 // Morgan: Untuk memberikan date pada token (belajar lagi tentang moran)
-morgan.token("date", (req, res) => {
+morgan.token("date", () => {
   new Date().toString();
 });
 app.use(
@@ -30,5 +29,8 @@ app.use("/auth", authRoutes);
 
 // Profile Routes
 app.use("/profile", profileRoutes);
+
+// Recipe Routes
+app.use("/recipe", recipeRoutes);
 
 app.listen(PORT, () => console.log(`API running on ${PORT}`));

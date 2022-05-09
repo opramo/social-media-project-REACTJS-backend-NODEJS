@@ -10,10 +10,14 @@ const upload = (destination, fileNamePrefix) => {
       console.log("file :", file);
       const dirAva = "/profile-picture";
       const dirCov = "/profile-cover";
-      const directory =
-        file.fieldname === "profile_picture"
-          ? defaultPath + destination + dirAva
-          : defaultPath + destination + dirCov;
+      let directory;
+      if (file.fieldname === "profile_picture") {
+        directory = defaultPath + destination + dirAva;
+      } else if (file.fieldname === "profile_cover") {
+        directory = defaultPath + destination + dirCov;
+      } else {
+        directory = defaultPath + destination;
+      }
       fs.existsSync(directory)
         ? cb(null, directory)
         : fs.mkdir(directory, { recursive: true }, (error) =>
@@ -25,14 +29,21 @@ const upload = (destination, fileNamePrefix) => {
       const fileAva = "AVATAR";
       const fileCov = "COVER";
       let extention = originalName.split(".");
-      let fileName =
-        file.fieldname === "profile_picture"
-          ? `${fileNamePrefix}${fileAva}${Date.now()}.${
-              extention[extention.length - 1]
-            }`
-          : `${fileNamePrefix}${fileCov}${Date.now()}.${
-              extention[extention.length - 1]
-            }`;
+      let fileName;
+      if (file.fieldname === "profile_picture") {
+        fileName = `${fileNamePrefix}${fileAva}${Date.now()}.${
+          extention[extention.length - 1]
+        }`;
+      } else if (file.fieldname === "profile_cover") {
+        fileName = `${fileNamePrefix}${fileCov}${Date.now()}.${
+          extention[extention.length - 1]
+        }`;
+      } else {
+        fileName = `${fileNamePrefix}${Date.now()}.${
+          extention[extention.length - 1]
+        }`;
+      }
+      console.log(fileName);
       cb(null, fileName);
     },
   });

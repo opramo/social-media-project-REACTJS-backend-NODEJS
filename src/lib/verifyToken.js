@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const myCache = require("./cache");
 
 const verifyToken = async (req, res, next) => {
-  const authHeader = req.headers["authorization"];
+  const authHeader = req.headers.authorization;
   console.log(`authHeader :"${authHeader}"`);
 
   let key = process.env.JWT_SECRET;
