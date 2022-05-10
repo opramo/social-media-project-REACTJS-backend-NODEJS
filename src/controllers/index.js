@@ -13,8 +13,11 @@ const {
   commentRecipe,
 } = require("./recipeController");
 const { updateProfile } = require("./profileControllers");
+const { getRecipesFeed, getRecipesLikers } = require("./recipeFetchController");
 
 module.exports = {
+  getRecipesLikers,
+  getRecipesFeed,
   commentRecipe,
   likeRecipe,
   editRecipe,

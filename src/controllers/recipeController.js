@@ -1,6 +1,5 @@
 const { dbCon } = require("../connection");
 const fs = require("fs");
-const db = require("../connection/mysqldb");
 
 const postRecipe = async (req, res) => {
   let path = "/post-photos";
