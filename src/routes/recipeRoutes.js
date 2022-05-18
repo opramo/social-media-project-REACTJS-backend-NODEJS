@@ -7,6 +7,11 @@ const {
   commentRecipe,
   getRecipesFeed,
   getRecipesLikers,
+  getRecipesComments,
+  getRecipe,
+  getRecipesUser,
+  getLikedRecipes,
+  getRecipesRecipe,
 } = require("../controllers");
 const { upload, verifyToken } = require("../lib");
 
@@ -19,12 +24,17 @@ const uploader = upload("/post-photos", "POST").fields([
 // Recipe Manipulation
 Router.post("/post-recipe", verifyToken, uploader, postRecipe);
 Router.patch("/edit-recipe", verifyToken, uploader, editRecipe);
-Router.delete("/delete-recipe", verifyToken, deleteRecipe);
+Router.post("/delete-recipe", verifyToken, deleteRecipe);
 Router.post("/like-recipe", verifyToken, likeRecipe);
 Router.post("/comment-recipe", verifyToken, commentRecipe);
 
 // Recipe Fetching
-Router.get("/recipe-feed", verifyToken, getRecipesFeed);
+Router.get("/recipes-feed", verifyToken, getRecipesFeed);
+Router.get("/recipes-user", verifyToken, getRecipesUser);
+Router.get("/recipes-liked", verifyToken, getLikedRecipes);
+Router.post("/recipe-detail", getRecipe);
 Router.post("/recipe-likers", getRecipesLikers);
+Router.post("/recipe-comments", getRecipesComments);
+Router.post("/recipe-recipe", getRecipesRecipe);
 
 module.exports = Router;

@@ -5,6 +5,7 @@ const {
   keepLogin,
   emailVerification,
   verifyAccount,
+  forgetPassword,
 } = require("../controllers");
 const { verifyToken, verifyLastToken } = require("../lib");
 
@@ -13,7 +14,7 @@ Router.post("/register", registerController);
 Router.post("/login", loginController);
 Router.get("/keepLogin", verifyToken, keepLogin);
 Router.post("/email-verification", emailVerification);
-// verifyLastToken
-Router.get("/verification", verifyToken, verifyAccount);
+Router.get("/verification", verifyToken, verifyLastToken, verifyAccount);
+Router.post("/forgot-password", forgetPassword);
 
 module.exports = Router;

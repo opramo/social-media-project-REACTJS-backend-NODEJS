@@ -22,13 +22,11 @@ const verifyLastToken = (req, res, next) => {
   const { createdAt, id } = req.user;
   let cache = myCache.get(id);
   console.log(cache);
-  // if (createdAt === cache.createdAt) {
-  // } else {
-  if (cache) {
+  if (createdAt === cache?.createdAt) {
     next();
   } else {
     console.log(`gagal lewat verify last token`);
-    return res.status(401).send({ message: "User Unauthorized" });
+    return res.status(401).send({ message: "Token expired" });
   }
   // }
 };

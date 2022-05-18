@@ -54,13 +54,13 @@ const postRecipe = async (req, res) => {
       instructions: resultInstructions,
     };
 
-    conn.commit();
+    await conn.commit();
     conn.release();
 
     return res.status(200).send(result);
     // .send(resultPreview[0]);
   } catch (error) {
-    conn.rollback();
+    await conn.rollback();
     conn.release();
     console.log(error);
     return res.status(500).send({ message: error.message || error });
@@ -74,10 +74,7 @@ const editRecipe = async (req, res) => {
   const data = JSON.parse(req.body.data);
   const { photo } = req.files;
   const { title, instructions, ingredients, post_id } = data;
-  console.log(data);
-  console.log(title);
-  console.log(photo[0].filename);
-  const photoPath = `${path}/${photo[0].filename}`;
+  const photoPath = photo ? `${path}/${photo[0].filename}` : null;
 
   data.photo = photoPath;
   console.log(data);
@@ -96,8 +93,14 @@ const editRecipe = async (req, res) => {
       throw { message: "recipe not found" };
     }
     //   title insert
-    sql = `UPDATE posts SET title = ?, photo = ? WHERE post_id = ?`;
-    await conn.query(sql, [title, data.photo, post_id]);
+    if (data.photo) {
+      sql = `UPDATE posts SET title = ?, photo = ? WHERE post_id = ?`;
+      await conn.query(sql, [title, data.photo, post_id]);
+      fs.unlinkSync("./public" + prevPost[0].photo);
+    } else {
+      sql = `UPDATE posts SET title = ? WHERE post_id = ?`;
+      await conn.query(sql, [title, post_id]);
+    }
 
     //   ingredients
     sql = `DELETE FROM post_ingredients WHERE post_id = ?`;
@@ -134,15 +137,14 @@ const editRecipe = async (req, res) => {
       ingredients: resultIngredients,
       instructions: resultInstructions,
     };
-    fs.unlinkSync("./public" + prevPost[0].photo);
 
-    conn.commit();
+    await conn.commit();
     conn.release();
 
     return res.status(200).send(result);
     // .send(resultPreview[0]);
   } catch (error) {
-    conn.rollback();
+    await conn.rollback();
     conn.release();
     console.log(error);
     return res.status(500).send({ message: error.message || error });
@@ -177,11 +179,11 @@ const deleteRecipe = async (req, res) => {
     await conn.query(sql, post_id);
     sql = `DELETE FROM comments WHERE post_id = ?`;
     await conn.query(sql, post_id);
-    conn.commit();
+    await conn.commit();
     conn.release();
     return res.status(200).send({ message: "deleted!" });
   } catch (error) {
-    conn.rollback();
+    await conn.rollback();
     conn.release();
     console.log(error);
     return res.status(500).send({ message: error.message || error });
@@ -207,11 +209,11 @@ const likeRecipe = async (req, res) => {
     }
     sql = `DELETE FROM likes WHERE user_id = ? AND post_id = ?`;
     await conn.query(sql, [id, post_id]);
-    conn.commit();
+    await conn.commit();
     conn.release();
     return res.status(200).send({ message: "unliked!" });
   } catch (error) {
-    conn.rollback();
+    await conn.rollback();
     conn.release();
     console.log(error);
     return res.status(500).send({ message: error.message || error });
@@ -236,7 +238,7 @@ const commentRecipe = async (req, res) => {
     };
     await conn.query(sql, insertComment);
     // get comments
-    sql = `SELECT * FROM comments WHERE post_id = ?`;
+    sql = `SELECT comments.comment, comments.id, users.username, user_details.fullname, user_details.profile_picture FROM comments JOIN users ON comments.user_id = users.id JOIN user_details ON comments.user_id = user_details.user_id WHERE post_id = ? ORDER BY comments.id DESC`;
     let [result] = await conn.query(sql, post_id);
     conn.release();
     return res.status(200).send(result);

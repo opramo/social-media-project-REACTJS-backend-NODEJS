@@ -4,6 +4,7 @@ const {
   keepLogin,
   emailVerification,
   verifyAccount,
+  forgetPassword,
 } = require("./authControllers");
 const {
   deleteRecipe,
@@ -13,9 +14,22 @@ const {
   commentRecipe,
 } = require("./recipeController");
 const { updateProfile } = require("./profileControllers");
-const { getRecipesFeed, getRecipesLikers } = require("./recipeFetchController");
+const {
+  getRecipesFeed,
+  getRecipesLikers,
+  getRecipesComments,
+  getRecipe,
+  getRecipesUser,
+  getLikedRecipes,
+  getRecipesRecipe,
+} = require("./recipeFetchController");
 
 module.exports = {
+  getRecipesRecipe,
+  getLikedRecipes,
+  getRecipesUser,
+  getRecipe,
+  getRecipesComments,
   getRecipesLikers,
   getRecipesFeed,
   commentRecipe,
@@ -24,6 +38,7 @@ module.exports = {
   postRecipe,
   deleteRecipe,
   updateProfile,
+  forgetPassword,
   registerController,
   loginController,
   keepLogin,

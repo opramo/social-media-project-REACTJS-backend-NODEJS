@@ -11,7 +11,6 @@ const handlebars = require("handlebars");
 const { dbCon } = require("../connection");
 const { loginService } = require("../services/authService");
 const db = require("../connection/mysqldb");
-const { commit } = require("../connection/mysqldb");
 
 const registerController = async (req, res) => {
   try {
@@ -26,11 +25,11 @@ const registerController = async (req, res) => {
     console.log(`data token:`, dataToken);
 
     // belajar lagi tentang cache
-    // let cached = myCache.set(userData.id, dataToken, 300);
-    // if (!cached) {
-    //   throw { message: "error while doing caching." };
-    // }
-    // console.log(`cached data:`, cached);
+    let cached = myCache.set(userData.id, dataToken, 300);
+    if (!cached) {
+      throw { message: "error while doing caching." };
+    }
+    console.log(`cached data:`, cached);
     // Variable host untuk pemilihan host mana yang dipakai tergantung pada node_env
     const tokenEmail = createJWTEmail(dataToken);
     const host =
@@ -122,10 +121,11 @@ const emailVerification = async (req, res) => {
     };
     console.log(dataToken);
 
-    // let cached = myCache.set(id, dataToken, 300);
-    // if (!cached) {
-    //   throw { message: "error caching" };
-    // }
+    let cached = myCache.set(id, dataToken, 300);
+    if (!cached) {
+      throw { message: "error caching" };
+    }
+    console.log(cached);
     const tokenEmail = createJWTEmail(dataToken);
     const host =
       process.env.NODE_ENV === "production"
@@ -192,7 +192,67 @@ const verifyAccount = async (req, res) => {
   }
 };
 
+const forgetPassword = async (req, res) => {
+  const { email } = req.body;
+  console.log(email);
+  let sql, conn;
+  try {
+    conn = await dbCon.promise().getConnection();
+    sql = `SELECT * FROM users WHERE email = ?`;
+    let [requestedUser] = await conn.query(sql, email);
+    console.log(requestedUser);
+    if (!requestedUser.length) {
+      throw { message: "There is no account registered with that email." };
+    }
+    console.log(`ada`);
+    const { id, username } = requestedUser[0];
+    let createdAt = new Date().getTime();
+    const dataToken = {
+      id,
+      username,
+      createdAt,
+    };
+
+    let cached = myCache.set(id, dataToken, 300);
+    if (!cached) {
+      throw { message: "error while doing caching." };
+    }
+    // Variable host untuk pemilihan host mana yang dipakai tergantung pada node_env
+    const tokenEmail = createJWTEmail(dataToken);
+    const host =
+      process.env.NODE_ENV === "production"
+        ? "http://domainasli"
+        : "http://localhost:3000";
+    const link = `${host}/reset-password/${tokenEmail}`;
+
+    // Pengiriman email verifikasi ke user saat sudah melakukan register
+    let filepath = path.resolve(
+      __dirname,
+      "../templates/templateEmailHTML.html"
+    );
+
+    let htmlString = fs.readFileSync(filepath, "utf-8");
+    const template = handlebars.compile(htmlString);
+    const htmlToEmail = template({ username, link });
+
+    // Pengiriman email
+    await transporter.sendMail({
+      from: "TheChefBook <lbrqspurs@gmail.com>",
+      to: email,
+      subject: "TheChefBook Account Verification E-mail",
+      html: htmlToEmail,
+    });
+    conn.release();
+    res.set("x-token-access", tokenEmail);
+    return res.status(200).send({ message: "Email sent!" });
+  } catch (error) {
+    conn.release();
+    console.log(error);
+    return res.status(500).send({ message: error.message || error });
+  }
+};
 module.exports = {
+  forgetPassword,
   registerController,
   loginController,
   keepLogin,
