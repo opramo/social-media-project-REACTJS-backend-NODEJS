@@ -249,7 +249,26 @@ const commentRecipe = async (req, res) => {
   }
 };
 
+const deleteComment = async (req, res) => {
+  let { comment_id } = req.query;
+  console.log(comment_id);
+  comment_id = parseInt(comment_id);
+  let sql, conn;
+  try {
+    conn = await dbCon.promise().getConnection();
+    sql = `DELETE FROM comments WHERE id = ?`;
+    await conn.query(sql, comment_id);
+    conn.release();
+    return res.status(200).send({ message: "deleted" });
+  } catch (error) {
+    conn.release();
+    console.log(error);
+    return res.status(500).send({ message: error.message || error });
+  }
+};
+
 module.exports = {
+  deleteComment,
   postRecipe,
   deleteRecipe,
   editRecipe,

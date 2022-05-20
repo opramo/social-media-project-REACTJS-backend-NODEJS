@@ -14,6 +14,7 @@ const {
   editRecipe,
   likeRecipe,
   commentRecipe,
+  deleteComment,
 } = require("./recipeController");
 const { updateProfile } = require("./profileControllers");
 const {
@@ -27,6 +28,7 @@ const {
 } = require("./recipeFetchController");
 
 module.exports = {
+  deleteComment,
   tokenPassword,
   changePassword,
   getRecipesRecipe,

@@ -193,7 +193,7 @@ const getRecipesComments = async (req, res) => {
   let sql, conn;
   try {
     conn = dbCon.promise();
-    sql = `SELECT comments.comment, comments.id, users.username, user_details.fullname, user_details.profile_picture FROM comments JOIN users ON comments.user_id = users.id JOIN user_details ON comments.user_id = user_details.user_id WHERE post_id = ? ORDER BY comments.id DESC`;
+    sql = `SELECT comments.comment, comments.id, comments.user_id, users.username, user_details.fullname, user_details.profile_picture FROM comments JOIN users ON comments.user_id = users.id JOIN user_details ON comments.user_id = user_details.user_id WHERE post_id = ? ORDER BY comments.id DESC`;
 
     let [comments] = await conn.query(sql, post_id);
     return res.status(200).send(comments);
@@ -262,7 +262,7 @@ const getRecipe = async (req, res) => {
     let [resultWhoLikes] = await conn.query(sql, post_id);
 
     // comments
-    sql = `SELECT comments.comment, comments.id, users.username, user_details.fullname, user_details.profile_picture FROM comments JOIN users ON comments.user_id = users.id JOIN user_details ON comments.user_id = user_details.user_id WHERE post_id = ? ORDER BY comments.id DESC`;
+    sql = `SELECT comments.comment, comments.user_id, comments.id, users.username, user_details.fullname, user_details.profile_picture FROM comments JOIN users ON comments.user_id = users.id JOIN user_details ON comments.user_id = user_details.user_id WHERE post_id = ? ORDER BY comments.id DESC`;
     let [comments] = await conn.query(sql, post_id);
 
     let result = {

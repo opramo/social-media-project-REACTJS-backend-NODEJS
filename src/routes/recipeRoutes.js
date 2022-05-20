@@ -12,6 +12,7 @@ const {
   getRecipesUser,
   getLikedRecipes,
   getRecipesRecipe,
+  deleteComment,
 } = require("../controllers");
 const { upload, verifyToken } = require("../lib");
 
@@ -27,6 +28,7 @@ Router.patch("/edit-recipe", verifyToken, uploader, editRecipe);
 Router.post("/delete-recipe", verifyToken, deleteRecipe);
 Router.post("/like-recipe", verifyToken, likeRecipe);
 Router.post("/comment-recipe", verifyToken, commentRecipe);
+Router.delete("/delete-comment", verifyToken, deleteComment);
 
 // Recipe Fetching
 Router.get("/recipes-feed", verifyToken, getRecipesFeed);

@@ -226,7 +226,7 @@ const forgotPassword = async (req, res) => {
     // Pengiriman email verifikasi ke user saat sudah melakukan register
     let filepath = path.resolve(
       __dirname,
-      "../templates/templateEmailHTML.html"
+      "../templates/templateResetHTML.html"
     );
 
     let htmlString = fs.readFileSync(filepath, "utf-8");
@@ -237,7 +237,7 @@ const forgotPassword = async (req, res) => {
     await transporter.sendMail({
       from: "TheChefBook <lbrqspurs@gmail.com>",
       to: email,
-      subject: "TheChefBook Account Verification E-mail",
+      subject: "TheChefBook Password Reset E-mail",
       html: htmlToEmail,
     });
     conn.release();
