@@ -4,6 +4,7 @@ const {
   createJwtAccess,
   createJWTEmail,
   transporter,
+  hashRegister,
 } = require("../lib");
 const path = require("path");
 const fs = require("fs");
@@ -15,21 +16,19 @@ const db = require("../connection/mysqldb");
 const registerController = async (req, res) => {
   try {
     const { data: userData } = await registerService(req.body);
-    console.log(`masuk lagi ke controller`);
     let createdAt = new Date().getTime();
     const dataToken = {
       id: userData.id,
       username: userData.username,
       createdAt,
     };
-    console.log(`data token:`, dataToken);
 
     // belajar lagi tentang cache
     let cached = myCache.set(userData.id, dataToken, 300);
     if (!cached) {
       throw { message: "error while doing caching." };
     }
-    console.log(`cached data:`, cached);
+
     // Variable host untuk pemilihan host mana yang dipakai tergantung pada node_env
     const tokenEmail = createJWTEmail(dataToken);
     const host =
@@ -37,13 +36,13 @@ const registerController = async (req, res) => {
         ? "http://domainasli"
         : "http://localhost:3000";
     const link = `${host}/verification/${tokenEmail}`;
-    console.log(`link verifikasi:`, link);
+
     // Pengiriman email verifikasi ke user saat sudah melakukan register
     let filepath = path.resolve(
       __dirname,
       "../templates/templateEmailHTML.html"
     );
-    console.log(filepath);
+
     let htmlString = fs.readFileSync(filepath, "utf-8");
     const template = handlebars.compile(htmlString);
     const htmlToEmail = template({ username: userData.username, link });
@@ -58,7 +57,7 @@ const registerController = async (req, res) => {
 
     // Pengiriman data user dan token akses ke website untuk keperluan log in
     const tokenAccess = createJwtAccess(dataToken);
-    console.log(`authcontroller sukses`);
+
     res.set("x-token-access", tokenAccess);
     return res.status(200).send(userData);
   } catch (error) {
@@ -72,12 +71,12 @@ const registerController = async (req, res) => {
 const loginController = async (req, res) => {
   try {
     const { data: userData } = await loginService(req.body);
-    console.log("masuk controller");
+
     const dataToken = {
       id: userData.id,
       username: userData.username,
     };
-    console.log("dapet dataToken :", dataToken);
+
     const tokenAccess = createJwtAccess(dataToken);
     res.set("x-token-access", tokenAccess);
     return res.status(200).send(userData);
@@ -119,26 +118,25 @@ const emailVerification = async (req, res) => {
       username,
       createdAt,
     };
-    console.log(dataToken);
 
     let cached = myCache.set(id, dataToken, 300);
     if (!cached) {
       throw { message: "error caching" };
     }
-    console.log(cached);
+
     const tokenEmail = createJWTEmail(dataToken);
     const host =
       process.env.NODE_ENV === "production"
         ? "http://domainasli"
         : "http://localhost:3000";
     const link = `${host}/verification/${tokenEmail}`;
-    console.log(`link verifikasi:`, link);
+
     // Pengiriman email verifikasi ke user saat sudah melakukan register
     let filepath = path.resolve(
       __dirname,
       "../templates/templateEmailHTML.html"
     );
-    console.log(filepath);
+
     let htmlString = fs.readFileSync(filepath, "utf-8");
     const template = handlebars.compile(htmlString);
     const htmlToEmail = template({ username, link });
@@ -192,19 +190,19 @@ const verifyAccount = async (req, res) => {
   }
 };
 
-const forgetPassword = async (req, res) => {
+const forgotPassword = async (req, res) => {
   const { email } = req.body;
-  console.log(email);
+
   let sql, conn;
   try {
     conn = await dbCon.promise().getConnection();
     sql = `SELECT * FROM users WHERE email = ?`;
     let [requestedUser] = await conn.query(sql, email);
-    console.log(requestedUser);
+
     if (!requestedUser.length) {
       throw { message: "There is no account registered with that email." };
     }
-    console.log(`ada`);
+
     const { id, username } = requestedUser[0];
     let createdAt = new Date().getTime();
     const dataToken = {
@@ -243,16 +241,47 @@ const forgetPassword = async (req, res) => {
       html: htmlToEmail,
     });
     conn.release();
-    res.set("x-token-access", tokenEmail);
     return res.status(200).send({ message: "Email sent!" });
   } catch (error) {
     conn.release();
-    console.log(error);
     return res.status(500).send({ message: error.message || error });
   }
 };
+
+const tokenPassword = async (req, res) => {
+  try {
+    return res.status(200).send({ message: "Password changed!" });
+  } catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
+};
+const changePassword = async (req, res) => {
+  const { id } = req.user;
+  const { password } = req.body;
+
+  let sql, conn;
+
+  try {
+    conn = await dbCon.promise().getConnection();
+
+    let updateData = {
+      password: await hashRegister(password),
+    };
+    sql = `UPDATE users SET ? WHERE id = ?`;
+    await conn.query(sql, [updateData, id]);
+
+    conn.release();
+    return res.status(200).send({ message: "Password changed!" });
+  } catch (error) {
+    conn.release();
+    return res.status(500).send({ message: error.message });
+  }
+};
+
 module.exports = {
-  forgetPassword,
+  tokenPassword,
+  changePassword,
+  forgotPassword,
   registerController,
   loginController,
   keepLogin,

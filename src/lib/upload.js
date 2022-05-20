@@ -56,7 +56,11 @@ const upload = (destination, fileNamePrefix) => {
     cb(null, true);
   };
 
-  return multer({ storage, fileFilter, limits: { fileSize: 2 * 1024 * 1024 } });
+  return multer({
+    storage,
+    fileFilter,
+    //  limits: { fileSize: 2 * 1024 * 1024 }
+  });
 };
 
 module.exports = { upload };

@@ -32,6 +32,15 @@ const updateProfile = async (req, res) => {
     if (!result.length) {
       throw { message: "id not found" };
     }
+    sql = `SELECT id FROM users WHERE username = ?`;
+    let [usernameFound] = await conn.query(sql, data.username);
+    console.log(usernameFound);
+    // error jika tidak unique
+    if (usernameFound.length && usernameFound[0].id !== id) {
+      throw {
+        message: "Username has already been used! Try a different one!",
+      };
+    }
     sql = `UPDATE users JOIN user_details ON (users.id = user_details.user_id) SET ? WHERE users.id = ?`;
     await conn.query(sql, [data, id]);
     // if (imagePathAva || imagePathCov) {
