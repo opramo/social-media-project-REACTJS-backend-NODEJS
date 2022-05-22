@@ -3,7 +3,6 @@ const { dbCon } = require("../connection");
 // Fetching recipes on home page
 const getRecipesFeed = async (req, res) => {
   const { id } = req.user;
-  console.log(req);
   let { page, limit } = req.query;
   page = parseInt(page);
   limit = parseInt(limit);
@@ -52,7 +51,7 @@ const getRecipesFeed = async (req, res) => {
 
 // Fetching User's recipes
 const getRecipesUser = async (req, res) => {
-  const { id } = req.user;
+  const { id, user } = req.query;
   let conn, sql;
   try {
     conn = await dbCon.promise().getConnection();
@@ -88,9 +87,14 @@ const getRecipesUser = async (req, res) => {
     sql = `SELECT likes.user_id as liked FROM likes JOIN posts ON likes.post_id = posts.post_id WHERE posts.post_id = ? AND likes.user_id = ?`;
     for (let i = 0; i < result.length; i++) {
       let post = result[i];
-      let [resultLiked] = await conn.query(sql, [post.post_id, id]);
-      let liked = resultLiked.length ? 1 : 0;
-      result[i] = { ...result[i], liked };
+      if (user) {
+        let [resultLiked] = await conn.query(sql, [post.post_id, user]);
+        let liked = resultLiked.length ? 1 : 0;
+        result[i] = { ...result[i], liked };
+      } else {
+        let liked = 0;
+        result[i] = { ...result[i], liked };
+      }
     }
 
     // comments
@@ -98,7 +102,6 @@ const getRecipesUser = async (req, res) => {
     for (let i = 0; i < result.length; i++) {
       let post = result[i];
       let [comments] = await conn.query(sql, post.post_id);
-      console.log(comments);
       result[i] = { ...result[i], comments };
     }
 
@@ -113,7 +116,7 @@ const getRecipesUser = async (req, res) => {
 
 // Fetching User's liked recipes
 const getLikedRecipes = async (req, res) => {
-  const { id } = req.user;
+  const { id, user } = req.query;
   let conn, sql;
   try {
     conn = await dbCon.promise().getConnection();
@@ -149,9 +152,14 @@ const getLikedRecipes = async (req, res) => {
     sql = `SELECT likes.user_id as liked FROM likes JOIN posts ON likes.post_id = posts.post_id WHERE posts.post_id = ? AND likes.user_id = ?`;
     for (let i = 0; i < result.length; i++) {
       let post = result[i];
-      let [resultLiked] = await conn.query(sql, [post.post_id, id]);
-      let liked = resultLiked.length ? 1 : 0;
-      result[i] = { ...result[i], liked };
+      if (user) {
+        let [resultLiked] = await conn.query(sql, [post.post_id, user]);
+        let liked = resultLiked.length ? 1 : 0;
+        result[i] = { ...result[i], liked };
+      } else {
+        let liked = 0;
+        result[i] = { ...result[i], liked };
+      }
     }
 
     // comments
@@ -159,7 +167,6 @@ const getLikedRecipes = async (req, res) => {
     for (let i = 0; i < result.length; i++) {
       let post = result[i];
       let [comments] = await conn.query(sql, post.post_id);
-      console.log(comments);
       result[i] = { ...result[i], comments };
     }
 
@@ -172,7 +179,7 @@ const getLikedRecipes = async (req, res) => {
   }
 };
 
-// Fetching sers who liked the recipe
+// Fetching users who liked the recipe
 const getRecipesLikers = async (req, res) => {
   const { post_id } = req.body;
   let sql, conn;
@@ -228,7 +235,7 @@ const getRecipesRecipe = async (req, res) => {
 
 // Fetching recipe detail
 const getRecipe = async (req, res) => {
-  const { post_id, id } = req.body;
+  const { post_id, id } = req.query;
   let sql, conn;
   try {
     conn = await dbCon.promise().getConnection();

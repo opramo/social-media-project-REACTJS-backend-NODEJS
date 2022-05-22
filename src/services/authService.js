@@ -13,7 +13,6 @@ const registerService = async (data) => {
     // 1. (optional) cek validasi username tidak ada spasi
     let spasi = new RegExp(/ /g);
     if (spasi.test(username)) {
-      console.log(`masuk sini`);
       throw { message: `Please avoid using space character` };
     }
     // 2. cek username & email sudah terdaftar atau belom
@@ -43,13 +42,11 @@ const registerService = async (data) => {
       email,
       password: await hashRegister(password),
     };
-    console.log("Data dari register user:", insertData);
     let [result] = await conn.query(sql, insertData);
     // 7. (optional) langsung log in, get data user
     sql = `SELECT * from users where id = ?`;
     let [userData] = await conn.query(sql, [result.insertId]);
     conn.release();
-    console.log(`authservice sukses`, userData[0]);
     return { success: true, data: userData[0] };
   } catch (error) {
     conn.release();
@@ -63,39 +60,28 @@ const loginService = async (data) => {
   let conn, sql;
   let { username, email, password } = data;
   try {
-    console.log("masuk service");
     conn = await dbCon.promise().getConnection();
     // Cek apakah username/email ada di dalam database
     sql = `SELECT * FROM users WHERE username = ? or email = ?`;
     let [result] = await conn.query(sql, [username, email]);
-    console.log(result);
     let messageError = [];
     if (!result.length) {
-      console.log(`tidak ada user`);
       messageError[0] = "Username or Email does not exist!";
       throw { message: messageError };
     }
     // Cek apakah password sesuai
     let hashedPassword = result[0].password;
-    console.log(hashedPassword);
     let match = await hashLogIn(password, hashedPassword);
-    console.log(match);
     if (!match) {
-      console.log(`masuk sini karena tidak sama`);
       messageError[1] = "Incorrect password!";
       throw { message: messageError };
     }
-    console.log(`berhasil`);
     if (result[0].is_verified) {
       sql = `SELECT * FROM users JOIN user_details ON (users.id = user_details.user_id) WHERE users.id = ?`;
-      console.log("result :", result[0]);
       let [resultVerified] = await conn.query(sql, result[0].id);
-      console.log(`resultverified:`, resultVerified);
       conn.release();
-      console.log("verhasil nichh");
       return { data: resultVerified[0] };
     } else {
-      console.log("gagal nichh");
       conn.release();
       return { data: result[0] };
     }

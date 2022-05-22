@@ -6,16 +6,9 @@ const postRecipe = async (req, res) => {
   const data = JSON.parse(req.body.data);
   const { photo } = req.files;
   const { title, instructions, ingredients } = data;
-  console.log(data);
-  console.log(title);
-  console.log(photo[0].filename);
   const photoPath = `${path}/${photo[0].filename}`;
 
   data.photo = photoPath;
-  console.log(data);
-  //   instructions.forEach((data, index) => {
-  //       return
-  //   });
   const { id } = req.user;
   let conn, sql;
   try {
@@ -24,7 +17,6 @@ const postRecipe = async (req, res) => {
     //   title insert
     sql = `INSERT INTO posts SET title = ?, photo = ?, user_id = ?`;
     let [resultTitle] = await conn.query(sql, [title, data.photo, id]);
-    console.log(resultTitle.insertId);
     //   ingredients
     sql = `INSERT INTO post_ingredients SET ingredient = ?, post_id= ?`;
     for (let step of ingredients) {
@@ -77,10 +69,6 @@ const editRecipe = async (req, res) => {
   const photoPath = photo ? `${path}/${photo[0].filename}` : null;
 
   data.photo = photoPath;
-  console.log(data);
-  //   instructions.forEach((data, index) => {
-  //       return
-  //   });
   const { id } = req.user;
   let conn, sql;
   try {
@@ -120,7 +108,6 @@ const editRecipe = async (req, res) => {
       await conn.query(sql, [instruction, post_id]);
     }
 
-    console.log(post_id);
     //   get posts
     // sql = `SELECT * FROM posts JOIN post_ingredients ON (posts.post_id = post_ingredients.post_id) ORDER BY ingredients_id JOIN post_instructions ON (posts.post_id = post_instructions.post_id) WHERE post_id = ?`;
     // sql = `SELECT * FROM (SELECT * FROM posts JOIN post_ingredients ON (posts.post_id = post_ingredients.post_id)) a JOIN (SELECT * FROM posts JOIN post_instructions ON (posts.post_id = post_instructions.post_id)) b ON (a.post_id = b.post_id) WHERE a.post_id = ?`;
@@ -154,9 +141,7 @@ const editRecipe = async (req, res) => {
 // DELETE RECIPE //
 
 const deleteRecipe = async (req, res) => {
-  console.log(req.body);
   let { post_id } = req.body;
-  console.log(`this is post id: ${post_id}`);
   post_id = parseInt(post_id);
 
   let conn, sql;
@@ -165,7 +150,6 @@ const deleteRecipe = async (req, res) => {
     await conn.beginTransaction();
     sql = `SELECT * FROM posts where post_id = ?`;
     let [result] = await conn.query(sql, post_id);
-    console.log(result);
     if (result[0].photo) {
       fs.unlinkSync("./public" + result[0].photo);
     }
@@ -224,8 +208,6 @@ const commentRecipe = async (req, res) => {
   const { id } = req.user;
   console.log(`id :${id}`);
   const { comment, post_id } = req.body;
-  console.log(comment);
-  console.log(post_id);
 
   let sql, conn;
   try {
@@ -238,7 +220,7 @@ const commentRecipe = async (req, res) => {
     };
     await conn.query(sql, insertComment);
     // get comments
-    sql = `SELECT comments.comment, comments.id, users.username, user_details.fullname, user_details.profile_picture FROM comments JOIN users ON comments.user_id = users.id JOIN user_details ON comments.user_id = user_details.user_id WHERE post_id = ? ORDER BY comments.id DESC`;
+    sql = `SELECT comments.comment, comments.id, comments.user_id, users.username, user_details.fullname, user_details.profile_picture FROM comments JOIN users ON comments.user_id = users.id JOIN user_details ON comments.user_id = user_details.user_id WHERE post_id = ? ORDER BY comments.id DESC`;
     let [result] = await conn.query(sql, post_id);
     conn.release();
     return res.status(200).send(result);
@@ -251,7 +233,6 @@ const commentRecipe = async (req, res) => {
 
 const deleteComment = async (req, res) => {
   let { comment_id } = req.query;
-  console.log(comment_id);
   comment_id = parseInt(comment_id);
   let sql, conn;
   try {

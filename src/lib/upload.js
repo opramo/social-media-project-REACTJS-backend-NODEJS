@@ -6,8 +6,6 @@ const upload = (destination, fileNamePrefix) => {
   const defaultPath = "./public";
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      console.log("req :", req.files);
-      console.log("file :", file);
       const dirAva = "/profile-picture";
       const dirCov = "/profile-cover";
       let directory;
@@ -43,13 +41,13 @@ const upload = (destination, fileNamePrefix) => {
           extention[extention.length - 1]
         }`;
       }
-      console.log(fileName);
       cb(null, fileName);
     },
   });
 
   const fileFilter = function (req, file, cb) {
     const ext = /\.(jpg|jpeg|png|gif|JPEG|JPG)$/;
+    console.log("file:", file);
     if (!file.originalname.match(ext)) {
       return cb(new Error("Only listed file types are allowed"), false);
     }

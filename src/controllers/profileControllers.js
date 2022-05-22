@@ -2,8 +2,6 @@ const { dbCon } = require("../connection");
 const fs = require("fs");
 
 const updateProfile = async (req, res) => {
-  console.log("Isi req.files", req.files);
-  console.log("Isi req.body", req.body);
   let path = "/profile-photos";
   let pathAva = "/profile-picture";
   let pathCov = "/profile-cover";
@@ -34,7 +32,6 @@ const updateProfile = async (req, res) => {
     }
     sql = `SELECT id FROM users WHERE username = ?`;
     let [usernameFound] = await conn.query(sql, data.username);
-    console.log(usernameFound);
     // error jika tidak unique
     if (usernameFound.length && usernameFound[0].id !== id) {
       throw {
@@ -69,6 +66,23 @@ const updateProfile = async (req, res) => {
     conn.rollback();
     conn.release();
     console.log(error);
+    return res.status(500).send({ message: error.message || error });
+  }
+};
+
+const getUserDetails = async (req, res) => {
+  console.log(req.query);
+  const { profile_username } = req.query;
+  let sql, conn;
+  try {
+    conn = dbCon.promise();
+    sql = `SELECT * FROM users JOIN user_details ON (users.id = user_details.user_id) WHERE users.username = ?`;
+    let [result1] = await conn.query(sql, profile_username);
+    if (!result1.length) {
+      throw { message: "Chef not found" };
+    }
+    return res.status(200).send(result1[0]);
+  } catch (error) {
     return res.status(500).send({ message: error.message || error });
   }
 };
@@ -163,4 +177,4 @@ const updateProfile = async (req, res) => {
 //     return res.status(500).send({ message: error.message || error });
 //   }
 // };
-module.exports = { updateProfile };
+module.exports = { updateProfile, getUserDetails };

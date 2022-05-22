@@ -32,9 +32,9 @@ Router.delete("/delete-comment", verifyToken, deleteComment);
 
 // Recipe Fetching
 Router.get("/recipes-feed", verifyToken, getRecipesFeed);
-Router.get("/recipes-user", verifyToken, getRecipesUser);
-Router.get("/recipes-liked", verifyToken, getLikedRecipes);
-Router.post("/recipe-detail", getRecipe);
+Router.get("/recipes-user", getRecipesUser);
+Router.get("/recipes-liked", getLikedRecipes);
+Router.get("/recipe-detail", getRecipe);
 Router.post("/recipe-likers", getRecipesLikers);
 Router.post("/recipe-comments", getRecipesComments);
 Router.post("/recipe-recipe", getRecipesRecipe);
