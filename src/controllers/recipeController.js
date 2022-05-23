@@ -108,10 +108,6 @@ const editRecipe = async (req, res) => {
       await conn.query(sql, [instruction, post_id]);
     }
 
-    //   get posts
-    // sql = `SELECT * FROM posts JOIN post_ingredients ON (posts.post_id = post_ingredients.post_id) ORDER BY ingredients_id JOIN post_instructions ON (posts.post_id = post_instructions.post_id) WHERE post_id = ?`;
-    // sql = `SELECT * FROM (SELECT * FROM posts JOIN post_ingredients ON (posts.post_id = post_ingredients.post_id)) a JOIN (SELECT * FROM posts JOIN post_instructions ON (posts.post_id = post_instructions.post_id)) b ON (a.post_id = b.post_id) WHERE a.post_id = ?`;
-
     sql = `SELECT post_id, photo, title, created_at, user_id FROM posts WHERE post_id = ?`;
     let [resultPost] = await conn.query(sql, post_id);
     sql = `SELECT ingredient_id, ingredient FROM post_ingredients WHERE post_id = ?`;

@@ -11,7 +11,6 @@ const fs = require("fs");
 const handlebars = require("handlebars");
 const { dbCon } = require("../connection");
 const { loginService } = require("../services/authService");
-const db = require("../connection/mysqldb");
 
 const registerController = async (req, res) => {
   try {
