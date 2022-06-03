@@ -32,7 +32,7 @@ const registerController = async (req, res) => {
     const tokenEmail = createJWTEmail(dataToken);
     const host =
       process.env.NODE_ENV === "production"
-        ? "http://domainasli"
+        ? process.env.FRONTEND_HOST
         : "http://localhost:3000";
     const link = `${host}/verification/${tokenEmail}`;
 
@@ -126,7 +126,7 @@ const emailVerification = async (req, res) => {
     const tokenEmail = createJWTEmail(dataToken);
     const host =
       process.env.NODE_ENV === "production"
-        ? "http://domainasli"
+        ? process.env.FRONTEND_HOST
         : "http://localhost:3000";
     const link = `${host}/verification/${tokenEmail}`;
 
@@ -218,7 +218,7 @@ const forgotPassword = async (req, res) => {
     const tokenEmail = createJWTEmail(dataToken);
     const host =
       process.env.NODE_ENV === "production"
-        ? "http://domainasli"
+        ? process.env.FRONTEND_HOST
         : "http://localhost:3000";
     const link = `${host}/reset-password/${tokenEmail}`;
 
