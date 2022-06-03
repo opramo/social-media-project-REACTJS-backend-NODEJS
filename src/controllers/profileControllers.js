@@ -40,16 +40,14 @@ const updateProfile = async (req, res) => {
     }
     sql = `UPDATE users JOIN user_details ON (users.id = user_details.user_id) SET ? WHERE users.id = ?`;
     await conn.query(sql, [data, id]);
-    if (imagePathAva || imagePathCov) {
-      // klo image baru ada maka hapus image lama
-
-      if (result[0].profile_picture) {
-        fs.unlinkSync(`./public${result[0].profile_picture}`);
-      }
-      if (result[0].profile_cover) {
-        fs.unlinkSync(`./public${result[0].profile_cover}`);
-      }
+    if (imagePathAva && result[0].profile_picture) {
+      fs.unlinkSync(`./public${result[0].profile_picture}`);
     }
+
+    if (imagePathCov && result[0].profile_cover) {
+      fs.unlinkSync(`./public${result[0].profile_cover}`);
+    }
+
     sql = `SELECT * FROM users JOIN user_details ON (users.id = user_details.user_id) WHERE users.id = ?`;
     let [result1] = await conn.query(sql, id);
     await conn.commit();
