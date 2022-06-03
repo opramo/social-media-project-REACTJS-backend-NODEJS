@@ -39,12 +39,12 @@ const updateProfile = async (req, res) => {
       }
     }
   } catch (error) {
-    if (imagePathAva) {
-      fs.unlinkSync("./public" + imagePathAva);
-    }
-    if (imagePathCov) {
-      fs.unlinkSync("./public" + imagePathCov);
-    }
+    // if (imagePathAva) {
+    //   fs.unlinkSync("./public" + imagePathAva);
+    // }
+    // if (imagePathCov) {
+    //   fs.unlinkSync("./public" + imagePathCov);
+    // }
     console.log(error);
     return res.status(500).send({ message: error.message || error });
   }
