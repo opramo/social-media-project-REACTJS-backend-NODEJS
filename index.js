@@ -3,7 +3,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
 const { authRoutes, profileRoutes, recipeRoutes } = require("./src/routes");
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 // Morgan: Untuk memberikan date pada token (belajar lagi tentang moran)
 morgan.token("date", () => {
