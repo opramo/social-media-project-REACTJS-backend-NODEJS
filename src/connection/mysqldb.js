@@ -11,12 +11,10 @@ const db = mysql.createPool({
 });
 
 db.getConnection((err, conn) => {
-  console.log(err);
   if (err) {
     console.log("Could not establish connection!");
-  } else {
-    console.log(`connected as id ${conn.threadId}`);
   }
+  console.log(`connected as id ${conn.threadId}`);
 });
 
 module.exports = db;
