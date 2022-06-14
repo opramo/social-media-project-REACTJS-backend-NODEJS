@@ -40,13 +40,14 @@ const updateProfile = async (req, res) => {
     }
     sql = `UPDATE users JOIN user_details ON (users.id = user_details.user_id) SET ? WHERE users.id = ?`;
     await conn.query(sql, [data, id]);
-    if (imagePathAva && result[0].profile_picture) {
-      fs.unlinkSync(`./public${result[0].profile_picture}`);
-    }
+    // due to the ephimeral nature of the heroku filesystem, the deletion process of the existing picture after changing one has been disabled.
+    // if (imagePathAva && result[0].profile_picture) {
+    //   fs.unlinkSync(`./public${result[0].profile_picture}`);
+    // }
 
-    if (imagePathCov && result[0].profile_cover) {
-      fs.unlinkSync(`./public${result[0].profile_cover}`);
-    }
+    // if (imagePathCov && result[0].profile_cover) {
+    //   fs.unlinkSync(`./public${result[0].profile_cover}`);
+    // }
 
     sql = `SELECT * FROM users JOIN user_details ON (users.id = user_details.user_id) WHERE users.id = ?`;
     let [result1] = await conn.query(sql, id);
@@ -55,12 +56,12 @@ const updateProfile = async (req, res) => {
     return res.status(200).send(result1[0]);
     // get data
   } catch (error) {
-    if (imagePathAva) {
-      fs.unlinkSync("./public" + imagePathAva);
-    }
-    if (imagePathCov) {
-      fs.unlinkSync("./public" + imagePathCov);
-    }
+    // if (imagePathAva) {
+    //   fs.unlinkSync("./public" + imagePathAva);
+    // }
+    // if (imagePathCov) {
+    //   fs.unlinkSync("./public" + imagePathCov);
+    // }
     conn.rollback();
     conn.release();
     console.log(error);
